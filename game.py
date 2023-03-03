@@ -1,8 +1,7 @@
 import math
 import random
+import time
 import tkinter as tk
-import os
-import sys
 
 frames = 0
 score = 0
@@ -57,6 +56,14 @@ key = {
   KEY_Up: 0,
   KEY_Down: 0,
   KEY_Space: 0
+}
+
+keyrelease = {
+  KEY_Left: -1,
+  KEY_Right: -1,
+  KEY_Up: -1,
+  KEY_Down: -1,
+  KEY_Space: -1
 }
 
 
@@ -615,7 +622,7 @@ fps = 60
 fps_timeout = math.floor(1000/fps)
 
 def game_loop():
-    global frames, key, KEY_SEEN, timer_id
+    global frames, key, KEY_SEEN, keyrelease, KEY_RELEASED
 
     stars_update()
     fx_update()
@@ -625,9 +632,13 @@ def game_loop():
     hud_update()
 
     frames = frames + 1
-  
+    current_time = time.time()
     for k, v in key.items():
         key[k] = key[k] & KEY_SEEN
+        if keyrelease[k] > 0:
+            if (current_time - keyrelease[k]) > .2:
+                key[k] = key[k] & KEY_RELEASED
+                keyrelease[k] = -1
   
     stars_draw()
     aliens_draw()
@@ -642,17 +653,15 @@ def game_loop():
 #--- keyboard ---
 
 def on_close():
-    global canvas
-
-    if sys.platform.startswith("linux"):
-        os.system('xset r on')
+    global app
     app.destroy()
 
 
 def on_keypressed(event):
-    global key, KEY_SEEN, KEY_RELEASED, app, KEY_Escape
+    global key, KEY_SEEN, KEY_RELEASED, app, KEY_Escape, keyrelease
     if event.keysym_num in key:
         key[event.keysym_num] = KEY_SEEN + KEY_RELEASED
+        keyrelease[event.keysym_num] = -1
     
     if event.keysym_num == KEY_Escape:
         on_close()
@@ -661,13 +670,11 @@ def on_keypressed(event):
 def on_keyreleased(event):
     global key, KEY_RELEASED
     if event.keysym_num in key:
-        key[event.keysym_num] = key[event.keysym_num] & KEY_RELEASED
+        keyrelease[event.keysym_num] = time.time()
 
 
 app = tk.Tk()
 app.title("Tkinter 2d action game")
-if sys.platform.startswith("linux"):
-    os.system('xset r off')
 canvas = tk.Canvas(app, width=DISP_W, height=DISP_H)
 canvas.configure(bg="Black")
 canvas.pack()
