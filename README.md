@@ -13,7 +13,10 @@ This is the python tkinter version of the [Proof of Concept for a Gtk4 2D action
 
 * No sound fx
 * No tint effects when alien ships get hit. (Could created tinted sprite versions and swap them to create the tint effect)
-* On linux when holding the keys down, i always get a pair of keypress and keyrelease events when i am only expecting keypress events and only keyrelease event when i release the key. To bypass this problem i use os.system('xset r off') before starting the game and os.system('xset r on') when closing the game. But the 'xset r off' affects all other applications while the game is running. May be need to find another solution for that.
+
+## Solved issues
+
+* No longer use the fix os.system('xset r off') to bypass the key repeat problem on linux.
 
 ## Requirements
 
